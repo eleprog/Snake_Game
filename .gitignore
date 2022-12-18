@@ -50,3 +50,13 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+*.vcxproj*
+*.tlog
+*.xml
+*Debug/
+.vs/
+Related files/
+Write_memory/
+*.cproj
+*.atsln

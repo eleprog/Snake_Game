@@ -2,17 +2,23 @@
 #include <avr/pgmspace.h>
 
 #include "LCD5110.h"
+#include "tiles.h"
 
+typedef struct {
+	uint8_t tilelNumber	:6;
+	uint8_t tileType	:2;
+} mapCell;
 
-//const uint8_t tileArr[][] PROGMEM = {1,1,1,1,1,1};
+mapCell map[180];
+uint8_t snakeBody[180];
 
 
 int main(void)
 {
 	LCD5110_Init();
-    while (1) 
+    while (1)
     {
-		LCD5110_Send(0xFF);
+		LCD5110_Send(map[0].tilelNumber);
     }
 }
 

@@ -9,10 +9,10 @@
 
 int main(void)
 {
-	LCD_Init();
+	LCD5110_Init();
     while (1) 
     {
-		
+		LCD5110_Send(0xFF);
     }
 }
 

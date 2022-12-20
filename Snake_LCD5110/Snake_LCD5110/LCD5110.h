@@ -25,6 +25,11 @@
 #define LCD5510_Y	6   // Количество строк на дисплее
 
 
+// напряжение питания дисплея (VLCD = 3.06 В + v * 0.06 В) 
+// (не рекомендуется значение больше 85)
+#define LCD5510_VOLTAGE 65 
+
+
 void LCD5110_Init();
 void LCD5110_Send(uint8_t data);
 void LCD5110_Write(uint8_t data, uint8_t mode);

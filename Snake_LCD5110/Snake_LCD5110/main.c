@@ -30,18 +30,9 @@ void Timer1_Init()
 {
 	TCCR1B = (1<<CS22)|(0<<CS21)|(1<<CS20);	// Установка предделителя (1024) таймера 1
 	TCNT1 = 0;								// Обнуление счетного регистра таймера 1
-	OCR1A = 5000;							// Установка регистра сравнения таймера 1
+	OCR1A = 2000;							// Установка регистра сравнения таймера 1
 	TIMSK |= (1<<OCIE1A);					// разрешение прерываний
 }
-
-
-ISR(TIMER1_COMPA_vect)
-{
-	TCNT1 = 0;
-	map[snakeData.head++].tileNumber = TILE_BODY;
-	map[snakeData.head].tileNumber = TILE_HEAD;
-}
-
 
 //////////* v(ಠ_ಠ)v *//////////
 void Map_Output() {
@@ -101,16 +92,30 @@ void Map_Output() {
 	}
 }
 
+ISR(TIMER1_COMPA_vect)
+{
+	TCNT1 = 0;
+	map[snakeData.head++].tileNumber = TILE_BODY;
+	map[snakeData.head].tileNumber = TILE_HEAD;
+	
+	map[snakeData.tail++].tileNumber = TILE_NULL;
+	map[snakeData.tail].tileNumber = TILE_TAIL;
+	Map_Output();
+}
 int main(void)
 {	
-	snakeData.head = 0;
+	snakeData.head = 6;
 	snakeData.turn = 0;
-	snakeData.head = 0;
 	snakeData.tail = 0;
 	
 	for (uint8_t i = 0; i < 180; i++) {
 		map[i].tileNumber = TILE_NULL;
 	}
+	
+	for (uint8_t i = 0; i < 6; i++) {
+		map[i].tileNumber = TILE_BODY;
+	}
+	
 	LCD5110_Init();
 	
 	Timer1_Init();
@@ -119,7 +124,7 @@ int main(void)
 	
     while (1)
     {
-		Map_Output();
+		
     }
 }
 

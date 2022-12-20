@@ -1,5 +1,8 @@
+﻿#define F_CPU 8000000
+
 #include <avr/io.h>
 #include <avr/pgmspace.h>
+#include <avr/interrupt.h>
 
 #include "LCD5110.h"
 #include "graphics/tiles.h"
@@ -13,10 +16,34 @@ typedef struct {
 	uint8_t tileType	:2;
 } mapCell;
 
+struct {
+	uint8_t length;
+	uint8_t turn;
+	uint8_t head;
+	uint8_t tail;
+}snakeData;
+
 mapCell map[180];
 uint8_t snakeBody[180];
 
-//////////* v(?_?)v *//////////
+void Timer1_Init()
+{
+	TCCR1B = (1<<CS22)|(0<<CS21)|(1<<CS20);	// Установка предделителя (1024) таймера 1
+	TCNT1 = 0;								// Обнуление счетного регистра таймера 1
+	OCR1A = 5000;							// Установка регистра сравнения таймера 1
+	TIMSK |= (1<<OCIE1A);					// разрешение прерываний
+}
+
+
+ISR(TIMER1_COMPA_vect)
+{
+	TCNT1 = 0;
+	map[snakeData.head++].tileNumber = TILE_BODY;
+	map[snakeData.head].tileNumber = TILE_HEAD;
+}
+
+
+//////////* v(ಠ_ಠ)v *//////////
 void Map_Output() {
 	for(uint8_t bank = 0; bank < 5; bank++) {
 		LCD5110_Setpos(2, bank + 1);
@@ -76,15 +103,23 @@ void Map_Output() {
 
 int main(void)
 {	
+	snakeData.head = 0;
+	snakeData.turn = 0;
+	snakeData.head = 0;
+	snakeData.tail = 0;
+	
+	for (uint8_t i = 0; i < 180; i++) {
+		map[i].tileNumber = TILE_NULL;
+	}
 	LCD5110_Init();
 	
-	for(uint8_t i = 0; i < 180; i++)
-		map[i].tileNumber = TILE_HEAD+1;
+	Timer1_Init();
 	
-	Map_Output();
+	asm("sei");
+	
     while (1)
     {
-		
+		Map_Output();
     }
 }
 

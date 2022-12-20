@@ -1,7 +1,6 @@
 #pragma once
 
-// display pinout connection
-
+/////////////* display pinout connection */////////////
 #define LCD5510_RST_DDR		DDRB
 #define LCD5510_RST_PORT	PORTB
 #define LCD5510_RST_PIN		1
@@ -21,7 +20,6 @@
 #define LCD5510_CLK_DDR		DDRB
 #define LCD5510_CLK_PORT	PORTB
 #define LCD5510_CLK_PIN		0
-
 
 #define LCD5510_X	84  // Количество столбцов на дисплее
 #define LCD5510_Y	6   // Количество строк на дисплее

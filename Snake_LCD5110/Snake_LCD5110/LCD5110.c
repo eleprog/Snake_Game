@@ -11,7 +11,7 @@ void LCD5110_GPIO_Init() {
 	LCD5510_CLK_DDR |= 1<<LCD5510_CLK_PIN;	
 }
 
-void LCD5110_Init() {	
+void LCD5110_Init() {
 	LCD5110_GPIO_Init();
 	
 	LCD5510_RST_PORT |= 1<<LCD5510_RST_PIN;
@@ -54,13 +54,11 @@ void LCD5110_Write(uint8_t data, uint8_t mode) {
 void LCD5110_Clear() {
 	LCD5110_Setpos(0,0);
 	for(uint16_t i = 0; i < LCD5510_X * LCD5510_Y; i++)
-	LCD5110_Write(0, DATA);
+		LCD5110_Write(0, DATA);
 	LCD5110_Setpos(0,0);
 }
 
 void LCD5110_Setpos(uint8_t X, uint8_t Y) {
-	if(X <= LCD5510_X)
-		LCD5110_Write(0x80 + X, COMMAND);
-	if(Y <= LCD5510_Y)
-		LCD5110_Write(0x40 + Y, COMMAND);
+	LCD5110_Write(0x80 + X, COMMAND);
+	LCD5110_Write(0x40 + Y, COMMAND);
 }

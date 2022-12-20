@@ -51,7 +51,7 @@ for number in range (10):
         elif byte == 1:
             file_output.write(hex(dataByte) + ', ')
         elif number < 9:
-            file_output.write(hex(dataByte) + '}\n')
+            file_output.write(hex(dataByte) + '},\n')
         else:
             file_output.write(hex(dataByte) + '}};')
 

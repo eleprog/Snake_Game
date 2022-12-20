@@ -57,14 +57,14 @@ for vertical in range (5):
 
         dataByte = 0
         for bit in range(8):       
-            if mas[vertical + bit % 4][horizontal + bit // 4] < bytes(0x0F):
+            if mas[vertical + bit // 4][horizontal + bit % 4] < bytes(0x0F):
                 dataByte |= 1<<bit
         file_output.write('\t\t{ ' + hex(dataByte) + ', ')
 
         dataByte = 0
         for bit in range(8):
             
-            if mas[vertical + bit % 4][horizontal + bit // 4 + 2] < bytes(0x0F):
+            if mas[vertical + bit // 4 + 2][horizontal + bit % 4] < bytes(0x0F):
                 dataByte |= 1<<bit
 
         if (vertical / 5) * (horizontal / 5) < (5 - 1) * (8 - 1):

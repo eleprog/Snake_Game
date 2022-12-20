@@ -1,5 +1,5 @@
-file_input = open('tiles.bmp', "rb")
-file_output = open("../Snake_LCD5110/Snake_LCD5110/graphics/tiles.h", "w")
+file_input = open('numbers.bmp', "rb")
+file_output = open("../Snake_LCD5110/Snake_LCD5110/graphics/numbers.h", "w")
 
 # функция считывания данных из файла
 def Data_Read(adr, len):
@@ -38,41 +38,22 @@ for i in range(height):
 # генерация файла с массивом данных
 file_output.write('#include <avr/pgmspace.h>\n\n')
 
-file_output.write('// адреса тайлов\n')
-file_output.write('#define TILE_BODY\t0\n')
-file_output.write('#define TILE_NULL\t6\n')
-file_output.write('#define TILE_FOOD\t7\n')
-file_output.write('#define TILE_TURN\t8\n')
-file_output.write('#define TILE_HEAD\t16\n')
-file_output.write('#define TILE_TAIL\t24\n')
-file_output.write('#define TILE_BONUS\t28\n\n')
+file_output.write('const uint8_t numbers[10][3] PROGMEM = {\n')
 
-file_output.write('const uint8_t tiles[40][2] PROGMEM = {\n')
-
-
-for vertical in range (5):
-    vertical *= 5
-    for horizontal in range(8):
-        horizontal *= 5
-
-        dataByte = 0
-        for bit in range(8):       
-            if mas[vertical + bit % 4][horizontal + bit // 4] < bytes(0x0F):
-                dataByte |= 1<<bit
-        file_output.write('\t\t{ ' + hex(dataByte) + ', ')
-
+for number in range (10):
+    for byte in range(3):
         dataByte = 0
         for bit in range(8):
-            
-            if mas[vertical + bit % 4][horizontal + bit // 4 + 2] < bytes(0x0F):
+            if mas[bit][number * 4 + byte] < bytes(0x0F):
                 dataByte |= 1<<bit
-
-        if (vertical / 5) * (horizontal / 5) < (5 - 1) * (8 - 1):
-            file_output.write(hex(dataByte) + ' },\n')
+        if byte == 0:
+            file_output.write('\t\t{ ' + hex(dataByte) + ', ')
+        elif byte == 1:
+            file_output.write(hex(dataByte) + ', ')
+        elif number < 9:
+            file_output.write(hex(dataByte) + '}\n')
         else:
-            file_output.write(hex(dataByte) + ' }};')
-
-
+            file_output.write(hex(dataByte) + '}};')
 
 file_input.close()
 file_output.close()

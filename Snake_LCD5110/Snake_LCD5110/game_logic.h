@@ -6,6 +6,13 @@
 #define TILE_TYPE_BODY		0b10
 #define TILE_TYPE_FILLED	0b11
 
+#define TILE_CHECK_BODY		0b10
+#define TILE_CHECK_FOOD		0b01
+
+#define COLLISION_NULL 0
+#define COLLISION_FOOD 1
+#define COLLISION_BODY 2
+
 typedef struct {
 	uint8_t tileNumber	:6;
 	uint8_t tileFood	:1;

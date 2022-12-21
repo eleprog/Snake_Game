@@ -34,6 +34,7 @@
 
 struct {
 	uint8_t gameCycle	:1;
+	uint8_t collision	:1;
 }flags;
 
 void GPIO_Init() {
@@ -57,8 +58,10 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 void Game_Button_Handler() {
-	
+	//if()
 }
+
+
 
 int main(void)
 {	
@@ -69,15 +72,11 @@ int main(void)
 	Game_Map_Output();
 	asm("sei");
 	
+	snakeData.turn = 2;
     while (1)
     {
 		if(flags.gameCycle) {
-			map[snakeData.head++].tileNumber = TILE_BODY;
-			map[snakeData.head].tileNumber = TILE_HEAD;
-			
-			map[snakeData.tail++].tileNumber = TILE_NULL;
-			map[snakeData.tail].tileNumber = TILE_TAIL;
-			Game_Map_Output();
+			Game_Cycle();
 			flags.gameCycle = 0;
 		}
     }

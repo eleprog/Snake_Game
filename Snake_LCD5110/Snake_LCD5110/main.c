@@ -3,6 +3,7 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
+#include <stdlib.h>
 
 #include "LCD5110.h"
 #include "graphics/tiles.h"
@@ -35,7 +36,7 @@ void GPIO_Init() {
 void Timer1_Init() {
 	TCCR1B = (1<<CS22)|(0<<CS21)|(1<<CS20);	// Установка предделителя (1024) таймера 1
 	TCNT1 = 0;								// Обнуление счетного регистра таймера 1
-	OCR1A = 4000;							// Установка регистра сравнения таймера 1
+	OCR1A = 1000;							// Установка регистра сравнения таймера 1
 	TIMSK |= (1<<OCIE1A);					// разрешение прерываний
 }
 
@@ -60,6 +61,7 @@ void Game_Button_Handler() {
 
 int main(void)
 {
+	srand(2);
 	LCD5110_Init();
 	GPIO_Init();
 	Timer1_Init();

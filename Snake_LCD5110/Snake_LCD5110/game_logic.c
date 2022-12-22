@@ -7,18 +7,20 @@
 	snakeData.headPointer = 5;
 	
 	// заполнение массива snakeBody[] адресами в которых находится тело змейки
-	for (uint8_t i = snakeData.tailPointer; i < snakeData.headPointer + 1; i++)
+	for (uint8_t i = snakeData.tailPointer; i < snakeData.headPointer + 1; i++) {
 		snakeBody[i] = PLAYING_FIELD_X * 4 + 7 + i;
-	
+		map[snakeBody[i]].tileBody = 1;
+	}
 	Game_Map_Clear();
 	
 	// заполнение массива map[] адресами на тайлы
-	for (uint8_t i = snakeData.tailPointer; i < snakeData.headPointer; i++) 
+	for (uint8_t i = snakeData.tailPointer; i < snakeData.headPointer; i++)
 		map[snakeBody[i]].tileNumber = TILE_BODY;
-		
+	
 	map[snakeBody[snakeData.headPointer]].tileNumber = TILE_HEAD;
 	map[snakeBody[snakeData.tailPointer]].tileNumber = TILE_TAIL;
 	
+	Game_Spawn_Food();
 	Game_Map_Output();
 }
 
@@ -91,14 +93,18 @@ void Game_Cycle() {
 	else if(snakeData.turn == 3 && --headY < 0)					// right
 		headY = PLAYING_FIELD_Y - 1;
 	
-	uint8_t collision = Game_Head_Collision(headX + headY * PLAYING_FIELD_X);
-	// обработчик столкновения с едой
-	/*if(collision == COLLISION_FOOD)
-		snakeData.length++;
-	else
-		map[snakeData.tail].tileNumber = TILE_NULL;*/
-		
-		
+	uint8_t headPointerNext = headX + headY * PLAYING_FIELD_X;
+	
+	
+
+	// снятие с последнего элемента змейки флага tileBody, tileFood
+	// иначе будет столкновение с последним элементом змейки
+	map[snakeBody[snakeData.tailPointer]].tileBody = 0;
+	map[snakeBody[snakeData.tailPointer]].tileFood = 0;
+	
+	// проверка на столкновения
+	uint8_t collision = Game_Head_Collision(headPointerNext);
+	
 	// обработчик столкновения с телом змейки
 	if(collision == COLLISION_BODY) {
 		
@@ -106,50 +112,25 @@ void Game_Cycle() {
 	
 	// если столкновений не было
 	else {
-		////////////////////////////////////* tile draw *////////////////////////////////////
-		uint8_t tailTurn = 0;
-		
-		uint8_t tailOldX = snakeBody[snakeData.tailPointer] % PLAYING_FIELD_X;
-		uint8_t tailOldY = snakeBody[snakeData.tailPointer] / PLAYING_FIELD_X;
-		uint8_t tailPointerOld = snakeData.tailPointer;
-		
-		// инкремент tailPointer
-		if(++snakeData.tailPointer >= PLAYING_FIELD_X * PLAYING_FIELD_Y)
-			snakeData.tailPointer = 0;
-		
-		uint8_t tailX = snakeBody[snakeData.tailPointer] % PLAYING_FIELD_X;
-		uint8_t tailY = snakeBody[snakeData.tailPointer] / PLAYING_FIELD_X;
-		
-		
-		if(tailY == tailOldY) {	// left, right
-			if(tailX > tailOldX && (tailX - tailOldX <= 1))	// right
-				tailTurn = 0;
-			else if(tailOldX - tailX <= 1)
-				tailTurn = 2;
-			else
-				tailTurn = 0;
-			
+		// обработчик столкновения с едой
+		if(collision == COLLISION_FOOD) {
+			snakeData.length++;
+			Game_Spawn_Food();
 		}
-		else					// up, down
-		{	
-			if(tailY > tailOldY && (tailY - tailOldY <= 1))	// right
-				tailTurn = 1;
-			else if(tailOldY - tailY <= 1)
-				tailTurn = 3;
-			else
-				tailTurn = 1;
-			
+		else {
+			Game_Draw_Tail();
 		}
-		
-		map[snakeBody[tailPointerOld]].tileNumber = TILE_NULL;
-		map[snakeBody[snakeData.tailPointer]].tileNumber = TILE_TAIL + tailTurn;
-		
 		////////////////////////////////////* head draw *////////////////////////////////////
-		map[headX + headY * PLAYING_FIELD_X].tileNumber = TILE_HEAD + snakeData.turn;
+		map[headPointerNext].tileNumber = TILE_HEAD + snakeData.turn;
+		map[headPointerNext].tileBody = 1;
+		
+		uint8_t tileFood = 0;
+		if(map[snakeBody[snakeData.headPointer]].tileFood)
+			tileFood = 4;
 		
 		// если угол поворота не изменился
 		if(snakeData.turn == snakeData.turnOld)
-			map[snakeBody[snakeData.headPointer]].tileNumber = TILE_BODY + snakeData.turn;
+			map[snakeBody[snakeData.headPointer]].tileNumber = TILE_BODY + snakeData.turn + tileFood;
 	
 		// если угол поворота изменился
 		else {
@@ -161,9 +142,9 @@ void Game_Cycle() {
 			
 			// отрисовка предыдущего за головой тайла
 			if(snakeData.turnOld == turnDecrement)
-				map[snakeBody[snakeData.headPointer]].tileNumber = TILE_TURN + snakeData.turn;
+				map[snakeBody[snakeData.headPointer]].tileNumber = TILE_TURN + snakeData.turn + tileFood;
 			else
-				map[snakeBody[snakeData.headPointer]].tileNumber = TILE_TURN + turnDecrement;
+				map[snakeBody[snakeData.headPointer]].tileNumber = TILE_TURN + turnDecrement + tileFood;
 		
 			snakeData.turnOld = snakeData.turn;
 		}
@@ -172,23 +153,80 @@ void Game_Cycle() {
 		if(++snakeData.headPointer >= PLAYING_FIELD_X * PLAYING_FIELD_Y)
 			snakeData.headPointer = 0;
 		
-		snakeBody[snakeData.headPointer] = headX + headY * PLAYING_FIELD_X;
+		snakeBody[snakeData.headPointer] = headPointerNext;
 	}
 	Game_Map_Output();
 }
 
 uint8_t Game_Head_Collision(uint8_t head) {
 	// check collision with body
-	if(map[head].tileBody & TILE_CHECK_BODY)
+	if(map[head].tileBody)
 		return COLLISION_BODY;
 		
-	if(map[head].tileBody & TILE_CHECK_FOOD)
-		return COLLISION_FOOD;
-		
+	// check collision with food
+	if(map[head].tileFood) {
+		if(map[head].tileNumber == TILE_FOOD)
+			return COLLISION_FOOD;
+		else
+			return COLLISION_BONUS;
+	}
+
 	return COLLISION_NULL;
 }
 
 void Game_Map_Clear() {
 	for (uint8_t i = 0; i < PLAYING_FIELD_X * PLAYING_FIELD_Y; i++) 
 		map[i].tileNumber = TILE_NULL;
+}
+
+void Game_Spawn_Food() {
+	uint8_t addr = 0;
+	do {
+		uint8_t foodX = rand() % PLAYING_FIELD_X;
+		uint8_t foodY = rand() % PLAYING_FIELD_Y;	
+		
+		addr = foodY * PLAYING_FIELD_X + foodX;
+	} while (map[addr].tileNumber != TILE_NULL);
+	
+	map[addr].tileNumber = TILE_FOOD;
+	map[addr].tileFood = 1;
+}
+
+void Game_Draw_Tail() {
+	map[snakeBody[snakeData.tailPointer]].tileNumber = TILE_NULL;
+	uint8_t tailTurn = 0;
+	
+	// инкремент tailPointer
+	if(++snakeData.tailPointer >= PLAYING_FIELD_X * PLAYING_FIELD_Y)
+	snakeData.tailPointer = 0;
+	
+	uint8_t tailPointerNext = snakeData.tailPointer;
+	
+	if(++tailPointerNext >= PLAYING_FIELD_X * PLAYING_FIELD_Y)
+	tailPointerNext = 0;
+	
+	uint8_t tailX = snakeBody[snakeData.tailPointer] % PLAYING_FIELD_X;
+	uint8_t tailY = snakeBody[snakeData.tailPointer] / PLAYING_FIELD_X;
+	
+	uint8_t tailNextX = snakeBody[tailPointerNext] % PLAYING_FIELD_X;
+	uint8_t tailNextY = snakeBody[tailPointerNext] / PLAYING_FIELD_X;
+	
+	if(tailNextY == tailY) {							// left, right
+		if(tailNextX > tailX && (tailNextX - tailX <= 1))	// right
+			tailTurn = 0;
+		else if(tailX - tailNextX <= 1)						// left
+			tailTurn = 2;
+		else
+			tailTurn = 0;									// right
+	}
+	else {												// up, down
+		if(tailNextY > tailY && (tailNextY - tailY <= 1))	// down
+			tailTurn = 1;
+		else if(tailY - tailNextY <= 1)						// up
+			tailTurn = 3;
+		else
+			tailTurn = 1;									// down
+	}
+	
+	map[snakeBody[snakeData.tailPointer]].tileNumber = TILE_TAIL + tailTurn;
 }

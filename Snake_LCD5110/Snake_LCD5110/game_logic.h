@@ -12,6 +12,7 @@
 #define COLLISION_NULL 0
 #define COLLISION_FOOD 1
 #define COLLISION_BODY 2
+#define COLLISION_BONUS 3
 
 typedef struct {
 	uint8_t tileNumber	:6;
@@ -36,6 +37,8 @@ void Game_Map_Output();
 void Game_Cycle();
 uint8_t Game_Head_Collision(uint8_t head);
 void Game_Map_Clear();
+void Game_Spawn_Food();
+void Game_Draw_Tail();
 
 
 #include "game_logic.c"

@@ -40,17 +40,19 @@ file_output.write('#include <avr/pgmspace.h>\n\n')
 
 file_output.write('// адреса тайлов\n')
 file_output.write('#define TILE_BODY\t0\n')
-file_output.write('#define TILE_NULL\t6\n')
-file_output.write('#define TILE_FOOD\t7\n')
+
 file_output.write('#define TILE_TURN\t8\n')
 file_output.write('#define TILE_HEAD\t16\n')
 file_output.write('#define TILE_TAIL\t24\n')
-file_output.write('#define TILE_BONUS\t28\n\n')
+file_output.write('#define TILE_BONUS\t28\n')
+file_output.write('#define TILE_FOOD\t40\n')
+file_output.write('#define TILE_WALL\t41\n')
+file_output.write('#define TILE_NULL\t42\n\n')
 
-file_output.write('const uint8_t tiles[40][2] PROGMEM = {\n')
+file_output.write('const uint8_t tiles[][2] PROGMEM = {\n')
 
 
-for vertical in range (5):
+for vertical in range (6):
     vertical *= 5
     for horizontal in range(8):
         horizontal *= 5
@@ -67,7 +69,7 @@ for vertical in range (5):
             if mas[vertical + bit // 4 + 2][horizontal + bit % 4] < bytes(0x0F):
                 dataByte |= 1<<bit
 
-        if (vertical / 5) * (horizontal / 5) < (5 - 1) * (8 - 1):
+        if (vertical / 6) * (horizontal / 5) < (5 - 1) * (8 - 1):
             file_output.write(hex(dataByte) + ' },\n')
         else:
             file_output.write(hex(dataByte) + ' }};')

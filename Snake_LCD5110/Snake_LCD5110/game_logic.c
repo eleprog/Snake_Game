@@ -1,22 +1,24 @@
 ﻿void Game_Init() {
-	snakeData.head = PLAYING_FIELD_X * 4 + 13;
-	snakeData.tail = PLAYING_FIELD_X * 4 + 7;
-	snakeData.length = 6;
 	snakeData.turn = 0;
 	snakeData.turnOld = 0;
+	snakeData.length = 6;
+	
+	snakeData.tailPointer = 0;
+	snakeData.headPointer = 5;
+	
+	// заполнение массива snakeBody[] адресами в которых находится тело змейки
+	for (uint8_t i = snakeData.tailPointer; i < snakeData.headPointer + 1; i++)
+		snakeBody[i] = PLAYING_FIELD_X * 4 + 7 + i;
 	
 	Game_Map_Clear();
 	
-	map[snakeData.head].tileNumber = TILE_HEAD;
-	map[snakeData.tail].tileNumber = TILE_TAIL;
+	// заполнение массива map[] адресами на тайлы
+	for (uint8_t i = snakeData.tailPointer; i < snakeData.headPointer; i++) 
+		map[snakeBody[i]].tileNumber = TILE_BODY;
+		
+	map[snakeBody[snakeData.headPointer]].tileNumber = TILE_HEAD;
+	map[snakeBody[snakeData.tailPointer]].tileNumber = TILE_TAIL;
 	
-	for (uint8_t i = snakeData.tail + 1; i < snakeData.head; i++)
-		map[i].tileNumber = TILE_BODY;
-		
-	
-		
-		
-		
 	Game_Map_Output();
 }
 
@@ -70,31 +72,31 @@ void Game_Map_Output() {
 				if(tmp[3] & 1<<(4+j)) data[j] |= 1<<7;
 			}
 			for(uint8_t k = 0; k < 4; k++)
-			LCD5110_Send(data[k]);
+				LCD5110_Send(data[k]);
 		}
 	}
 }
 
 void Game_Cycle() {
-	int8_t x = snakeData.head % 20;
-	int8_t y = snakeData.head / 20;
+	int8_t headX = snakeBody[snakeData.headPointer] % PLAYING_FIELD_X;
+	int8_t headY = snakeBody[snakeData.headPointer] / PLAYING_FIELD_X;
 	
 	// вычисление новых координат головы змейки
-	if(snakeData.turn == 0 && ++x == PLAYING_FIELD_X)		// right
-		x = 0;
-	else if(snakeData.turn == 1 && ++y == PLAYING_FIELD_Y)	// down
-		y = 0;
-	else if(snakeData.turn == 2 && --x < 0)					// left
-		x = PLAYING_FIELD_X - 1;
-	else if(snakeData.turn == 3 && --y < 0)					// right
-		y = PLAYING_FIELD_Y - 1;
+	if(snakeData.turn == 0 && ++headX == PLAYING_FIELD_X)		// right
+		headX = 0;
+	else if(snakeData.turn == 1 && ++headY == PLAYING_FIELD_Y)	// down
+		headY = 0;
+	else if(snakeData.turn == 2 && --headX < 0)					// left
+		headX = PLAYING_FIELD_X - 1;
+	else if(snakeData.turn == 3 && --headY < 0)					// right
+		headY = PLAYING_FIELD_Y - 1;
 	
-	uint8_t collision = Game_Head_Collision(x + y * PLAYING_FIELD_X);
+	uint8_t collision = Game_Head_Collision(headX + headY * PLAYING_FIELD_X);
 	// обработчик столкновения с едой
-	if(collision == COLLISION_FOOD)
+	/*if(collision == COLLISION_FOOD)
 		snakeData.length++;
 	else
-		map[snakeData.tail].tileNumber = TILE_NULL;
+		map[snakeData.tail].tileNumber = TILE_NULL;*/
 		
 		
 	// обработчик столкновения с телом змейки
@@ -103,32 +105,74 @@ void Game_Cycle() {
 	}
 	
 	// если столкновений не было
-	else {	
-		// head draw
-		map[x + y * PLAYING_FIELD_X].tileNumber = TILE_HEAD + snakeData.turn;
-	
+	else {
+		////////////////////////////////////* tile draw *////////////////////////////////////
+		uint8_t tailTurn = 0;
+		
+		uint8_t tailOldX = snakeBody[snakeData.tailPointer] % PLAYING_FIELD_X;
+		uint8_t tailOldY = snakeBody[snakeData.tailPointer] / PLAYING_FIELD_X;
+		uint8_t tailPointerOld = snakeData.tailPointer;
+		
+		// инкремент tailPointer
+		if(++snakeData.tailPointer >= PLAYING_FIELD_X * PLAYING_FIELD_Y)
+			snakeData.tailPointer = 0;
+		
+		uint8_t tailX = snakeBody[snakeData.tailPointer] % PLAYING_FIELD_X;
+		uint8_t tailY = snakeBody[snakeData.tailPointer] / PLAYING_FIELD_X;
+		
+		
+		if(tailY == tailOldY) {	// left, right
+			if(tailX > tailOldX && (tailX - tailOldX <= 1))	// right
+				tailTurn = 0;
+			else if(tailOldX - tailX <= 1)
+				tailTurn = 2;
+			else
+				tailTurn = 0;
+			
+		}
+		else					// up, down
+		{	
+			if(tailY > tailOldY && (tailY - tailOldY <= 1))	// right
+				tailTurn = 1;
+			else if(tailOldY - tailY <= 1)
+				tailTurn = 3;
+			else
+				tailTurn = 1;
+			
+		}
+		
+		map[snakeBody[tailPointerOld]].tileNumber = TILE_NULL;
+		map[snakeBody[snakeData.tailPointer]].tileNumber = TILE_TAIL + tailTurn;
+		
+		////////////////////////////////////* head draw *////////////////////////////////////
+		map[headX + headY * PLAYING_FIELD_X].tileNumber = TILE_HEAD + snakeData.turn;
+		
 		// если угол поворота не изменился
 		if(snakeData.turn == snakeData.turnOld)
-			map[snakeData.head].tileNumber = TILE_BODY + snakeData.turn;
+			map[snakeBody[snakeData.headPointer]].tileNumber = TILE_BODY + snakeData.turn;
 	
 		// если угол поворота изменился
 		else {
-			uint8_t turnDecrement = 0;
+			int8_t turnDecrement = snakeData.turn - 1;
 		
-			// вычисление (snakeData.turn - 1) и запись в turnDecrement
-			if(snakeData.turn) 
-				turnDecrement = snakeData.turn - 1;
-			else	// (0b00 - 1 = 0b11)
+			// (0 - 1 = 3)
+			if(turnDecrement < 0)
 				turnDecrement = 3;
-		
+			
+			// отрисовка предыдущего за головой тайла
 			if(snakeData.turnOld == turnDecrement)
-				map[snakeData.head].tileNumber = TILE_TURN + snakeData.turn;
+				map[snakeBody[snakeData.headPointer]].tileNumber = TILE_TURN + snakeData.turn;
 			else
-				map[snakeData.head].tileNumber = TILE_TURN + turnDecrement;
+				map[snakeBody[snakeData.headPointer]].tileNumber = TILE_TURN + turnDecrement;
 		
 			snakeData.turnOld = snakeData.turn;
 		}
-		snakeData.head = x + y * PLAYING_FIELD_X;
+			
+		// инкремент headPointer
+		if(++snakeData.headPointer >= PLAYING_FIELD_X * PLAYING_FIELD_Y)
+			snakeData.headPointer = 0;
+		
+		snakeBody[snakeData.headPointer] = headX + headY * PLAYING_FIELD_X;
 	}
 	Game_Map_Output();
 }

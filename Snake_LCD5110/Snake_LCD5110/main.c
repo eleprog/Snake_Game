@@ -35,7 +35,7 @@ void GPIO_Init() {
 void Timer1_Init() {
 	TCCR1B = (1<<CS22)|(0<<CS21)|(1<<CS20);	// Установка предделителя (1024) таймера 1
 	TCNT1 = 0;								// Обнуление счетного регистра таймера 1
-	OCR1A = 5000;							// Установка регистра сравнения таймера 1
+	OCR1A = 4000;							// Установка регистра сравнения таймера 1
 	TIMSK |= (1<<OCIE1A);					// разрешение прерываний
 }
 
@@ -71,7 +71,7 @@ int main(void)
     {
 		if(flags.gameCycle) {
 			Game_Cycle();
-			 Game_Button_Handler();
+			Game_Button_Handler();
 			flags.gameCycle = 0;
 		}
     }

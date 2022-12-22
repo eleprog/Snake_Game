@@ -23,8 +23,8 @@ struct {
 	uint8_t length;
 	uint8_t turn: 2;
 	uint8_t turnOld: 2;
-	uint8_t head;
-	uint8_t tail;
+	uint8_t headPointer;
+	uint8_t tailPointer;
 }snakeData;
 
 mapCell map[180];

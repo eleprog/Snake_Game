@@ -21,24 +21,28 @@ typedef struct {
 } mapCell;
 
 struct {
-	uint8_t length;
-	uint8_t turn: 2;
-	uint8_t turnOld: 2;
+	uint8_t turn		:2;
+	uint8_t turnOld		:2;
+	uint8_t difficulty	:3;
 	uint8_t headPointer;
 	uint8_t tailPointer;
+	uint16_t score;
 }snakeData;
 
 mapCell map[180];
 uint8_t snakeBody[180];
 
-
 void Game_Init();
-void Game_Map_Output();
 void Game_Cycle();
-uint8_t Game_Head_Collision(uint8_t head);
+void Game_Map_Output();
 void Game_Map_Clear();
 void Game_Spawn_Food();
 void Game_Draw_Tail();
+void Game_Draw_Head(uint8_t pointer);
+void Game_Draw_Frame();
+uint8_t Game_Check_Collision(uint8_t pointer);
+uint8_t Game_Calc_Pointer_Next_Step(uint8_t pointer);
+void Game_Score_Output();
 
 
 #include "game_logic.c"

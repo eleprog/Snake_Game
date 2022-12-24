@@ -1,4 +1,4 @@
-# Snake Game
+# Snake game
 ### Игра "Snake II" с телефона "Nokia 3310"
 ### Реализованная на микроконтроллере "ATmega8" и дисплейном модуле "Nokia5110 LCD"
 

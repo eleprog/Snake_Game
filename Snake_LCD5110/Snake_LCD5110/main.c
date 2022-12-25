@@ -39,7 +39,6 @@ void Timer1_Init();
 void Game_Button_Handler();
 
 
-
 void GPIO_Init() {
 	BUTTON_DDR &= ~((1<<BUTTON_UP_PIN)|(1<<BUTTON_DOWN_PIN)|(1<<BUTTON_LEFT_PIN)|(1<<BUTTON_RIGHT_PIN)|(1<<BUTTON_ENTER_PIN));
 	BUTTON_PORT |= (1<<BUTTON_UP_PIN)|(1<<BUTTON_DOWN_PIN)|(1<<BUTTON_LEFT_PIN)|(1<<BUTTON_RIGHT_PIN)|(1<<BUTTON_ENTER_PIN);
@@ -77,16 +76,16 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 void Game_Button_Handler() {
-	if(!(BUTTON_PIN & 1<<BUTTON_RIGHT_PIN) && snakeData.turnOld != 2)
+	if(!(BUTTON_PIN & 1<<BUTTON_RIGHT_PIN) && snakeData.turnOld % 2)
 		snakeData.turn = 0;
 		
-	else if(!(BUTTON_PIN & 1<<BUTTON_DOWN_PIN) && snakeData.turnOld != 3)
+	else if(!(BUTTON_PIN & 1<<BUTTON_DOWN_PIN) && !(snakeData.turnOld % 2))
 		snakeData.turn = 1;
 		
-	else if(!(BUTTON_PIN & 1<<BUTTON_LEFT_PIN) && snakeData.turnOld != 0)
+	else if(!(BUTTON_PIN & 1<<BUTTON_LEFT_PIN) && snakeData.turnOld % 2)
 		snakeData.turn = 2;
 		
-	else if(!(BUTTON_PIN & 1<<BUTTON_UP_PIN) && snakeData.turnOld != 1)
+	else if(!(BUTTON_PIN & 1<<BUTTON_UP_PIN) && !(snakeData.turnOld % 2))
 		snakeData.turn = 3;
 }
 

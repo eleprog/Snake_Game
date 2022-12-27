@@ -29,6 +29,7 @@
 
 struct {
 	uint8_t gameCycle	:1;
+	uint8_t buttonCheck	:1;
 }flags;
 
 
@@ -65,7 +66,7 @@ ISR(TIMER0_OVF_vect) {
 	counter++;
 	
 	if(counter > comp) {
-		Game_Button_Handler();
+		flags.buttonCheck = 1;
 		counter = 0;
 	}
 }
@@ -105,8 +106,11 @@ int main(void)
     {
 		if(flags.gameCycle) {
 			Game_Cycle();
-			Game_Button_Handler();
 			flags.gameCycle = 0;
+		}
+		if(flags.buttonCheck) {
+			Game_Button_Handler();
+			flags.buttonCheck = 0;
 		}
     }
 }

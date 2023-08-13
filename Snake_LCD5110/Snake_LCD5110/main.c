@@ -9,7 +9,6 @@
 #include "graphics/numbers.h"
 
 #include "LCD5110.h"
-
 #include "game_logic.h"
 
 
@@ -46,16 +45,16 @@ void GPIO_Init() {
 }
 
 void Timer0_Init() {
-	TCCR0 = (0<<CS22)|(1<<CS21)|(1<<CS20);	// установка предделителя (64) таймера 0
-	TCNT0 = 0;								// обнуление счетного регистра таймера 0
-	TIMSK |= (1<<TOIE0);					// разрешение прерываний по переполнению
+	TCCR0 = (0<<CS22)|(1<<CS21)|(1<<CS20);	// setting the prescaler (64) timer 0
+	TCNT0 = 0;								// zeroing the counting register of the timer 0
+	TIMSK |= (1<<TOIE0);					// set interrupt for overflow
 }
 
 void Timer1_Init() {
-	TCCR1B = (1<<CS22)|(0<<CS21)|(1<<CS20);	// установка предделителя (1024) таймера 1
-	TCNT1 = 0;								// обнуление счетного регистра таймера 1
-	OCR1A = 2000;							// установка регистра сравнения таймера 1
-	TIMSK |= (1<<OCIE1A);					// разрешение прерываний по совпадению
+	TCCR1B = (1<<CS22)|(0<<CS21)|(1<<CS20);	// setting the prescaler (1024) timer 1
+	TCNT1 = 0;								// zeroing the counting register of the timer 1
+	OCR1A = 2000;							// setting of comparison register timer 1
+	TIMSK |= (1<<OCIE1A);					// set interrupt for match
 }
 
 ISR(TIMER0_OVF_vect) {

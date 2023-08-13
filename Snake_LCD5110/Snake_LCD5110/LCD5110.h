@@ -1,5 +1,5 @@
 ﻿#pragma once 
-//Δ
+
 /////////////* display pinout connection */////////////
 #define LCD5510_RST_DDR		DDRB
 #define LCD5510_RST_PORT	PORTB
@@ -21,12 +21,12 @@
 #define LCD5510_CLK_PORT	PORTB
 #define LCD5510_CLK_PIN		0
 
-#define LCD5510_X	84  // Количество столбцов на дисплее
-#define LCD5510_Y	6   // Количество строк на дисплее
+#define LCD5510_X	84  // Number of columns on the display
+#define LCD5510_Y	6   // Number of lines on the display
 
 
-// напряжение питания дисплея (VLCD = 3.06 В + v * 0.06 В) 
-// (не рекомендуется значение больше 85)
+// display supply voltage (VLCD = 3.06 + LCD5510_VOLTAGE * 0.06)
+// (value greater than 85 is not recommended)
 #define LCD5510_VOLTAGE 69
 
 

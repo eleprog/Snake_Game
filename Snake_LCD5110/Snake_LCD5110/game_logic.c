@@ -11,7 +11,7 @@
 	
 	snakeData.score = 0;
 	
-	// заполнение массива snakeBody[] адресами в которых находится тело змейки
+	// filling snakeBody[] with addresses in which the body of the snake is located
 	for (uint8_t i = snakeData.tailPointer; i < snakeData.headPointer + 1; i++) {
 		snakeBody[i] = PLAYING_FIELD_X * 4 + 7 + i;
 		map[snakeBody[i]].tileBody = 1;
@@ -20,7 +20,7 @@
 	LCD5110_Clear();
 	Game_Map_Clear();
 	
-	// заполнение массива map[] адресами на тайлы
+	// filling map[] addresses into tiles
 	for (uint8_t i = snakeData.tailPointer; i < snakeData.headPointer; i++)
 		map[snakeBody[i]].tileNumber = TILE_BODY;
 	
@@ -37,16 +37,13 @@ void Game_Cycle() {
 	uint8_t headPointerNext = Game_Calc_Pointer_Next_Step(snakeBody[snakeData.headPointer]);
 	uint8_t collision = Game_Check_Collision(headPointerNext);
 	
-	// обработчик столкновения с телом змейки
+	// snake body collision handler
 	if(collision == COLLISION_BODY) {
 		
 	}
-	// если столкновения с телом змейки не было
+	
 	else {
-		
-		
-		
-		// обработчик столкновения с едой
+		// food collision handler
 		if(collision == COLLISION_FOOD) {
 			snakeData.score += snakeData.difficulty;
 			Game_Spawn_Food();
@@ -54,11 +51,11 @@ void Game_Cycle() {
 			if(++snakeData.bonusCount == 5)
 				Game_Bonus_Handler(BONUS_SPAWN);
 		}
-		// обработчик столкновения с бонусной едой
+		// bonus food collision handler
 		else if(collision == COLLISION_BONUS)
 			Game_Bonus_Handler(BONUS_DESPAWN);
 		
-		// если столкновений с едой не было
+		// no collisions
 		else 
 			Game_Draw_Tail();
 			
@@ -259,10 +256,10 @@ void Game_Draw_Tail() {
 	map[snakeBody[snakeData.tailPointer]].tileBody = 0;
 	map[snakeBody[snakeData.tailPointer]].tileFood = 0;
 	
-	// инкремент tailPointer
+	// increment tailPointer
 	if(++snakeData.tailPointer >= PLAYING_FIELD_X * PLAYING_FIELD_Y)
 		snakeData.tailPointer = 0;
-	
+		
 	uint8_t tailPointerNext = snakeData.tailPointer;
 	
 	if(++tailPointerNext >= PLAYING_FIELD_X * PLAYING_FIELD_Y)
@@ -311,11 +308,11 @@ void Game_Draw_Head(uint8_t pointer) {
 		
 	map[snakeBody[snakeData.headPointer]].tileFood = 0;
 	
-	// если угол поворота не изменился
+	// direction not changed
 	if(snakeData.turn == snakeData.turnOld)
 		map[snakeBody[snakeData.headPointer]].tileNumber = TILE_BODY + snakeData.turn + tileFood;
 	
-	// если угол поворота изменился
+	// direction changed
 	else {
 		int8_t turnDecrement = snakeData.turn - 1;
 		
@@ -323,7 +320,7 @@ void Game_Draw_Head(uint8_t pointer) {
 		if(turnDecrement < 0)
 			turnDecrement = 3;
 		
-		// отрисовка предыдущего за головой тайла
+		// drawing the previous tile behind the head
 		if(snakeData.turnOld == turnDecrement)
 			map[snakeBody[snakeData.headPointer]].tileNumber = TILE_TURN + snakeData.turn + tileFood;
 		else
@@ -332,7 +329,7 @@ void Game_Draw_Head(uint8_t pointer) {
 		snakeData.turnOld = snakeData.turn;
 	}
 	
-	// инкремент headPointer
+	// increment headPointer
 	if(++snakeData.headPointer >= PLAYING_FIELD_X * PLAYING_FIELD_Y)
 		snakeData.headPointer = 0;
 	
@@ -384,7 +381,7 @@ uint8_t Game_Calc_Pointer_Next_Step(uint8_t pointer) {
 	int8_t headX = pointer % PLAYING_FIELD_X;
 	int8_t headY = pointer / PLAYING_FIELD_X;
 	
-	// вычисление новых координат головы змейки
+	// calculation of new snake head coordinates
 	if(snakeData.turn == 0 && ++headX == PLAYING_FIELD_X)		// right
 		headX = 0;
 	else if(snakeData.turn == 1 && ++headY == PLAYING_FIELD_Y)	// down
